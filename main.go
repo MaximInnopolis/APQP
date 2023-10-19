@@ -47,7 +47,6 @@ func main() {
 		return
 	}
 
-	//fmt.Println("Number of concurrent tasks:", int32(*maxConcurrentTasksPtr))
 	logger.Printf("Number of concurrent tasks: %d\n", *maxConcurrentTasksPtr)
 
 	taskQueue := model.TaskQueue{
@@ -75,7 +74,6 @@ func main() {
 	// Start a goroutine for periodic TTL checking
 	go model.RemoveTasksWithExpiredTTL(&taskQueue, logger)
 
-	//fmt.Printf("The server is running on port %s\n\n", *portPtr)
 	logger.Printf("The server is running on port %s\n\n", *portPtr)
 
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
