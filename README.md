@@ -70,9 +70,12 @@ The request body must contain the task parameters in JSON format. Example:
 }
 ``` 
 
+![](https://i.imgur.com/MrIOn4N.png)
+
 - **GET /tasks**: Returns a list of current tasks in the queue. 
 The response contains data in JSON format representing the tasks.
 
+![](https://i.imgur.com/wDovYZq.png)
 
 ### Logging
 
@@ -91,3 +94,5 @@ log.Println("This will also be logged.")
 
 ### Where to Find Logs
 Logs are located in the app.log file in the root directory of the project. You can review this file to learn more about the application's operation and track events and errors.
+
+![](https://i.imgur.com/VFuNwc7.png)
