@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 )
 
-func EnqueueTask(taskQueue *model.TaskQueue, taskQueueCh chan *model.Task) http.HandlerFunc {
+func EnqueueTask(taskQueue *model.TaskQueue, taskQueueCh chan *model.Task, logger *log.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Read data from the request body
 		body, err := ioutil.ReadAll(r.Body)
@@ -47,12 +48,11 @@ func EnqueueTask(taskQueue *model.TaskQueue, taskQueueCh chan *model.Task) http.
 		// Send a successful response
 		w.WriteHeader(http.StatusCreated)
 		fmt.Fprintf(w, "Task enqueued successfully.")
-		fmt.Printf("Task %d is in the queue!\n", task.NumberInQueue)
-		fmt.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~")
+		logger.Printf("Task %d is in the queue\n\n", task.NumberInQueue)
 	}
 }
 
-func ListTasks(taskQueue *model.TaskQueue) http.HandlerFunc {
+func ListTasks(taskQueue *model.TaskQueue, logger *log.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		taskQueue.QueueLock.Lock()
 		defer taskQueue.QueueLock.Unlock()
@@ -66,5 +66,6 @@ func ListTasks(taskQueue *model.TaskQueue) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(data)
+		logger.Println("List of tasks has been requested\n")
 	}
 }

@@ -72,3 +72,22 @@ The request body must contain the task parameters in JSON format. Example:
 
 - **GET /tasks**: Returns a list of current tasks in the queue. 
 The response contains data in JSON format representing the tasks.
+
+
+### Logging
+
+This project utilizes logging to capture various events and messages. Logging allows us to track, analyze, and manage the actions and state of the application.
+
+#### Logging Library
+
+I use the standard Go `log` library to perform logging. This enables us to record messages in the log file instead of printing them to the console.
+
+Example of logging usage:
+
+```
+log.Printf("This message will be logged.")
+log.Println("This will also be logged.")
+```
+
+### Where to Find Logs
+Logs are located in the app.log file in the root directory of the project. You can review this file to learn more about the application's operation and track events and errors.

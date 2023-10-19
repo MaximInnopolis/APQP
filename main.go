@@ -8,10 +8,25 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 )
 
+var (
+	logger *log.Logger
+)
+
 func main() {
+	// Создание файла для записи логов
+	logFile, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("Failed to open log file: %v", err)
+	}
+	defer logFile.Close()
+
+	// Инициализация логгера
+	logger = log.New(logFile, "APQP: ", log.Ldate|log.Ltime|log.Lshortfile)
+
 	//Flags initialization
 	maxConcurrentTasksPtr := flag.Int("MaxConcurrentTasks", 2, "Number of concurrent tasks")
 	portPtr := flag.String("Port", "8080", "Port to listen on")
@@ -32,7 +47,8 @@ func main() {
 		return
 	}
 
-	fmt.Println("Number of concurrent tasks:", int32(*maxConcurrentTasksPtr))
+	//fmt.Println("Number of concurrent tasks:", int32(*maxConcurrentTasksPtr))
+	logger.Printf("Number of concurrent tasks: %d\n", *maxConcurrentTasksPtr)
 
 	taskQueue := model.TaskQueue{
 		Tasks: []*model.Task{},
@@ -44,12 +60,12 @@ func main() {
 
 	for i := 0; i < *maxConcurrentTasksPtr; i++ {
 		wg.Add(1)
-		go worker.Worker(&wg, taskQueueCh)
+		go worker.Worker(&wg, taskQueueCh, logger)
 	}
 
 	// Routing
-	http.HandleFunc("/enqueue", handlers.EnqueueTask(&taskQueue, taskQueueCh))
-	http.HandleFunc("/tasks", handlers.ListTasks(&taskQueue))
+	http.HandleFunc("/enqueue", handlers.EnqueueTask(&taskQueue, taskQueueCh, logger))
+	http.HandleFunc("/tasks", handlers.ListTasks(&taskQueue, logger))
 
 	go func() {
 		wg.Wait()
@@ -57,8 +73,10 @@ func main() {
 	}()
 
 	// Start a goroutine for periodic TTL checking
-	go model.RemoveTasksWithExpiredTTL(&taskQueue)
+	go model.RemoveTasksWithExpiredTTL(&taskQueue, logger)
 
-	fmt.Printf("The server is running on port %s\n\n", *portPtr)
+	//fmt.Printf("The server is running on port %s\n\n", *portPtr)
+	logger.Printf("The server is running on port %s\n\n", *portPtr)
+
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
 }
