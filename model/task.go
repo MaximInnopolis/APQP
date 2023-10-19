@@ -1,26 +1,27 @@
 package model
 
 import (
+	"APQP/utils"
 	"sync"
 	"time"
 )
 
-// Task структура для представления задачи
+// Task is a structure for representing a task
 type Task struct {
-	ID          int
-	Status      string
-	N           int // Кол-во элементов в прогрессии
-	D           float64
-	N1          float64 // Первый элемент в прогрессии
-	I           float64 // В секундах (интервал)
-	TTL         float64 // В секундах время хранения результата
-	CurrentIter float64 // Текущий элемент прогрессии
-	TaskingTime time.Time
-	StartTime   CustomTime
-	FinishTime  CustomTime
+	NumberInQueue int
+	Status        string
+	N             int // Number of elements in the progression
+	D             float64
+	N1            float64 // First element in the progression
+	I             float64 // In seconds (interval)
+	TTL           float64 // Time in seconds for storing the result
+	CurrentIter   float64 // Current element in the progression
+	TaskingTime   time.Time
+	StartTime     utils.CustomTime
+	FinishTime    utils.CustomTime
 }
 
-// TaskQueue структура для управления задачами
+// TaskQueue is a structure for managing tasks
 type TaskQueue struct {
 	Tasks     []*Task
 	QueueLock sync.Mutex

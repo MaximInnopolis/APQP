@@ -1,12 +1,13 @@
-package model
+package utils
 
 import "time"
 
+// CustomTime is a custom time structure
 type CustomTime struct {
 	time.Time
 }
 
-// MarshalJSON - реализация интерфейса json.Marshaler
+// MarshalJSON - implementation of the json.Marshaler interface
 func (ct CustomTime) MarshalJSON() ([]byte, error) {
 	if ct.Time.IsZero() {
 		return []byte(`"Time is not defined yet"`), nil
