@@ -69,7 +69,7 @@ Now your application is running in a Docker container, and it's accessible at ht
 ### Usage Examples
 After you start the service, you can perform the following actions:
 
-Start a task: To add a task to the queue, use an HTTP **POST** request to the **/enqueue** endpoint. Example request:
+Start a task: To add a task to the queue, use an HTTP **POST** request to the **/enqueue** endpoint.
 
 Viewing the list of tasks: To get a list of current tasks, send a **GET** request to the **/tasks** endpoint.
 Example request:
@@ -117,7 +117,7 @@ log.Println("This will also be logged.")
 ```
 
 ### Where to Find Logs
-Logs are located in the app.log file in the root directory of the project. You can review this file to learn more about the application's operation and track events and errors.
+Logs are located in the logs/app.log file. You can review this file to learn more about the application's operation and track events and errors.
 
 If you used docker to run the application,
 you can see the logs using the following command:
