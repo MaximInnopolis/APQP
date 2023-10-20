@@ -17,14 +17,16 @@ var (
 )
 
 func main() {
-	// Создание файла для записи логов
-	logFile, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	// Create a directory for log files
+	os.MkdirAll("logs", os.ModePerm)
+	// Create a file for log messages
+	logFile, err := os.OpenFile("logs/app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("Failed to open log file: %v", err)
 	}
 	defer logFile.Close()
 
-	// Инициализация логгера
+	// Initialize the logger
 	logger = log.New(logFile, "APQP: ", log.Ldate|log.Ltime|log.Lshortfile)
 
 	//Flags initialization
