@@ -1,16 +1,15 @@
 package handlers
 
 import (
+	"APQP/logger"
 	"APQP/model"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 )
 
-func EnqueueTask(taskQueue *model.TaskQueue, taskQueueCh chan *model.Task, logger *log.Logger) http.HandlerFunc {
+func EnqueueTask(taskQueue *model.TaskQueue) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Read data from the request body
 		body, err := ioutil.ReadAll(r.Body)
@@ -28,7 +27,7 @@ func EnqueueTask(taskQueue *model.TaskQueue, taskQueueCh chan *model.Task, logge
 		}
 
 		task := &model.Task{
-			NumberInQueue: len(taskQueue.Tasks) + 1,
+			NumberInQueue: len(taskQueue.GetTasks()) + 1,
 			Status:        "In Queue",
 			N:             request.N,
 			D:             request.D,
@@ -39,25 +38,21 @@ func EnqueueTask(taskQueue *model.TaskQueue, taskQueueCh chan *model.Task, logge
 			TaskingTime:   time.Now(),
 		}
 
-		// Add the task to the queue and channel
-		taskQueue.QueueLock.Lock()
-		taskQueue.Tasks = append(taskQueue.Tasks, task)
-		taskQueue.QueueLock.Unlock()
-		taskQueueCh <- task
+		// Add the task to the queue
+		taskQueue.EnQueue(task)
 
 		// Send a successful response
 		w.WriteHeader(http.StatusCreated)
-		fmt.Fprintf(w, "Task enqueued successfully.")
 		logger.Printf("Task %d is in the queue\n\n", task.NumberInQueue)
 	}
 }
 
-func ListTasks(taskQueue *model.TaskQueue, logger *log.Logger) http.HandlerFunc {
+func ListTasks(taskQueue *model.TaskQueue) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		taskQueue.QueueLock.Lock()
 		defer taskQueue.QueueLock.Unlock()
 
-		data, err := json.Marshal(taskQueue.Tasks)
+		data, err := json.Marshal(taskQueue.GetTasks())
 		if err != nil {
 			http.Error(w, "Failed to encode tasks", http.StatusInternalServerError)
 			return

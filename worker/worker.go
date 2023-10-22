@@ -1,14 +1,14 @@
 package worker
 
 import (
+	"APQP/logger"
 	"APQP/model"
 	"APQP/utils"
-	"log"
 	"sync"
 	"time"
 )
 
-func ProcessTask(task *model.Task, logger *log.Logger) {
+func processTask(task *model.Task) {
 	task.Status = "In progress"
 	task.StartTime = utils.CustomTime{Time: time.Now()}
 
@@ -25,27 +25,14 @@ func ProcessTask(task *model.Task, logger *log.Logger) {
 	logger.Printf("Task %d completed\n\n", task.NumberInQueue)
 }
 
-func Worker(wg *sync.WaitGroup, taskQueueCh chan *model.Task, logger *log.Logger) {
+func Worker(wg *sync.WaitGroup, taskQueue *model.TaskQueue) {
 	defer wg.Done()
 	for {
-		task, ok := <-taskQueueCh
-		if !ok {
-			return
-		}
 
-		ProcessTask(task, logger)
-
-		// After completing one task, attempt to take the next one from the queue
-		select {
-		case newTask, ok := <-taskQueueCh:
-			if !ok {
-				return
-			}
-			logger.Printf("Received new task %d\n\n", newTask.NumberInQueue)
-			ProcessTask(newTask, logger)
-		default:
-			// If there are no tasks in the queue, simply proceed to the next worker iteration
-			continue
+		if task, ok := taskQueue.DeQueue(); ok {
+			time.Sleep(time.Millisecond * 100)
+		} else {
+			processTask(task)
 		}
 	}
 }
